@@ -36,4 +36,12 @@ public class HelicopterController : MonoBehaviour
             Debug.Log("Picked up soldier. In helicopter: " + GameManager.Instance.soldiersInHelicopter);
         }
     }
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Tree"))
+        {
+            GameManager.Instance.isGameOver = true;
+            Debug.Log("Game Over!");
+        }
+    }
 }
