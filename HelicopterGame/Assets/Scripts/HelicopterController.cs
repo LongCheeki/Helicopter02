@@ -8,9 +8,6 @@ public class HelicopterController : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 movement;
 
-    private int soldiersInHelicopter = 0;
-    private int maxCapacity = 3;
-
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -18,6 +15,8 @@ public class HelicopterController : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance != null && GameManager.Instance.isGameOver) return;
+
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
     }
@@ -29,11 +28,12 @@ public class HelicopterController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Soldier") && soldiersInHelicopter < maxCapacity)
+        if (other.CompareTag("Soldier") && GameManager.Instance.CanPickUp())
         {
-            soldiersInHelicopter++;
+            GameManager.Instance.PickUpSoldier();
             Destroy(other.gameObject);
-            Debug.Log("Picked up soldier. Current: " + soldiersInHelicopter);
+
+            Debug.Log("Picked up soldier. In helicopter: " + GameManager.Instance.soldiersInHelicopter);
         }
     }
 }
