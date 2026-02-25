@@ -40,8 +40,8 @@ public class HelicopterController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Tree"))
         {
-            GameManager.Instance.isGameOver = true;
-            Debug.Log("Game Over!");
+            GameManager.Instance.GameOver();
+            rb.velocity = Vector2.zero;
         }
     }
 }
