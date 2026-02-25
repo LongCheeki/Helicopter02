@@ -7,6 +7,9 @@ public class HelicopterController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 5f;
 
+    [Header("Bounds")]
+    public float screenPadding = 0.2f; 
+
     [Header("Audio")]
     public AudioClip pickupClip;
 
@@ -22,7 +25,6 @@ public class HelicopterController : MonoBehaviour
 
     void Update()
     {
-
         if (GameManager.Instance != null && GameManager.Instance.isGameOver)
             return;
 
@@ -32,19 +34,52 @@ public class HelicopterController : MonoBehaviour
 
     void FixedUpdate()
     {
+
         rb.velocity = movement.normalized * moveSpeed;
+
+   
+        ClampToCamera();
+    }
+
+    void ClampToCamera()
+    {
+        Camera cam = Camera.main;
+        if (cam == null || !cam.orthographic) return;
+
+        float camHeight = cam.orthographicSize;
+        float camWidth = camHeight * cam.aspect;
+
+
+        float halfW = 0.25f;
+        float halfH = 0.25f;
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            halfW = col.bounds.extents.x;
+            halfH = col.bounds.extents.y;
+        }
+
+        Vector3 pos = transform.position;
+
+        float minX = cam.transform.position.x - camWidth + halfW + screenPadding;
+        float maxX = cam.transform.position.x + camWidth - halfW - screenPadding;
+        float minY = cam.transform.position.y - camHeight + halfH + screenPadding;
+        float maxY = cam.transform.position.y + camHeight - halfH - screenPadding;
+
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        pos.y = Mathf.Clamp(pos.y, minY, maxY);
+
+        transform.position = pos;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-  
+
         if (other.CompareTag("Soldier") && GameManager.Instance.CanPickUp())
         {
-    
             if (pickupClip != null && audioSource != null)
-            {
                 audioSource.PlayOneShot(pickupClip);
-            }
 
             GameManager.Instance.PickUpSoldier();
             Destroy(other.gameObject);
@@ -52,7 +87,7 @@ public class HelicopterController : MonoBehaviour
             Debug.Log("Picked up soldier. In helicopter: " + GameManager.Instance.soldiersInHelicopter);
         }
 
-
+  
         if (other.CompareTag("Hospital"))
         {
             GameManager.Instance.UnloadAtHospital();
@@ -61,7 +96,7 @@ public class HelicopterController : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
- 
+
         if (collision.gameObject.CompareTag("Tree"))
         {
             GameManager.Instance.GameOver();

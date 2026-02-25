@@ -19,6 +19,11 @@ public class GameManager : MonoBehaviour
     public TMP_Text inHeliText;
     public TMP_Text messageText;
 
+    [Header("Audio")]
+    public AudioSource bgmSource;
+    public AudioClip normalBgm;
+    public AudioClip winBgm;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -34,18 +39,28 @@ public class GameManager : MonoBehaviour
         if (messageText != null)
             messageText.text = "";
 
+
+        if (bgmSource == null)
+            bgmSource = GetComponent<AudioSource>();
+
+   
+        if (bgmSource != null && normalBgm != null)
+        {
+            bgmSource.clip = normalBgm;
+            bgmSource.loop = true;
+            bgmSource.Play();
+        }
+
         RefreshUI();
     }
 
     private void Update()
     {
- 
         if (Input.GetKeyDown(KeyCode.R))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
-
 
     public bool CanPickUp()
     {
@@ -59,7 +74,6 @@ public class GameManager : MonoBehaviour
         CheckWinCondition();
     }
 
-
     public void UnloadAtHospital()
     {
         soldiersRescued += soldiersInHelicopter;
@@ -68,7 +82,6 @@ public class GameManager : MonoBehaviour
         RefreshUI();
         CheckWinCondition();
     }
-
 
     public void GameOver()
     {
@@ -90,9 +103,17 @@ public class GameManager : MonoBehaviour
 
             if (messageText != null)
                 messageText.text = "You Win";
+
+       
+            if (bgmSource != null && winBgm != null)
+            {
+                bgmSource.Stop();
+                bgmSource.clip = winBgm;
+                bgmSource.loop = true; 
+                bgmSource.Play();
+            }
         }
     }
-
 
     public void RefreshUI()
     {
